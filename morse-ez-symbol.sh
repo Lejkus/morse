@@ -1,5 +1,12 @@
 #!/bin/sh
 
+if [ "$1" = "-h" ]; then
+    echo "Użycie: ./morse.sh [kropka] [kreska]"
+    echo "Przykład: echo \"Hello 123\" | ./morse.sh \".\" \"-\""
+    echo "          echo \"SOS\" | ./morse.sh \"*\" \"_\""
+    exit 0
+fi
+
 # Pobranie symboli z argumentów pozycyjnych (domyślnie: . i -)
 DOT="${1:-.}"
 DASH="${2:--}"
@@ -56,6 +63,7 @@ while IFS= read -r line; do
         code=$(get_morse "$char")
         # Zamień kropki i kreski na wybrane symbole
         code=$(echo "$code" | sed "s/\./$DOT/g" | sed "s/-/$DASH/g")
+
         #wersja bash
         #echo -n "$code "
         #wersja mac
