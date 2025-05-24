@@ -1,6 +1,10 @@
 #!/bin/sh
 
-# Funkcja zwraca kod Morse’a dla pojedynczego znaku
+# Pobranie symboli z argumentów pozycyjnych (domyślnie: . i -)
+DOT="${1:-.}"
+DASH="${2:--}"
+
+# Funkcja: zwraca kod Morse'a dla znaku
 get_morse() {
     case "$1" in
         A) echo ".-";;
@@ -44,12 +48,19 @@ get_morse() {
     esac
 }
 
-# Odczyt linii ze standardowego wejścia
+# Czytaj wejście linia po linii
 while IFS= read -r line; do
-    line=$(echo "$line" | tr 'a-z' 'A-Z')  # zamiana małych liter na wielkie
+    line=$(echo "$line" | tr 'a-z' 'A-Z')  # małe litery → wielkie
     for i in $(seq 1 ${#line}); do
         char=$(echo "$line" | cut -c$i)
-        get_morse "$char" | tr '\n' ' '
+        code=$(get_morse "$char")
+        # Zamień kropki i kreski na wybrane symbole
+        code=$(echo "$code" | sed "s/\./$DOT/g" | sed "s/-/$DASH/g")
+        #wersja bash
+        #echo -n "$code "
+        #wersja mac
+        printf "%s " "$code"
+
     done
     echo
 done
