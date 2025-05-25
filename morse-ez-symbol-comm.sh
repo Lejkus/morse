@@ -55,15 +55,31 @@ get_morse() {
     esac
 }
 
+# IFS = Input Field Separator - nie dzieli wiersza po spacjach
+# read -r – wczytuje tekst do zmiennej line, -r zapobiega specjalnej interpretacji \
+
 # Czytaj wejście linia po linii
 while IFS= read -r line; do
+
+    # $(...) – uruchamia polecenie, a jego wynik zostaje podstawiony.
+    
+    # tr - translate 
+
     line=$(echo "$line" | tr 'a-z' 'A-Z')  # małe litery → wielkie
+
+    # $(seq 1 ${#line}) – generuje liczby od 1 do długości tekstu:
     for i in $(seq 1 ${#line}); do
-        char=$(echo "$line" | cut -c$i)
+
+        # cut -c$i – wybiera i-ty znak z tekstu
+        # char=... – przypisuje ten znak do zmiennej char
+        char=$(echo  "$line" | cut -c$i)
+
+        #Uruchamia funkcję get_morse, przekazuje do niej literę, np. A, i zapisuje wynik (np. .-) do code
         code=$(get_morse "$char")
+
         # Zamień kropki i kreski na wybrane symbole
         code=$(echo "$code" | sed "s/\./$DOT/g" | sed "s/-/$DASH/g")
-
+    
         #wersja bash
         #echo -n "$code "
         #wersja mac
