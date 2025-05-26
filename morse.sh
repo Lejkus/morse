@@ -1,73 +1,73 @@
-#!/bin/bash
+#!/bin/sh
 
-# Ustawiamy domyślne symbole dla kropki i kreski w kodzie Morse'a
-DOT="."
-DASH="-"
-
-# Funkcja wyświetlająca pomoc
-print_help() {
-    echo "Użycie: $0 [-d SYMBOL_DLA_KROPKI] [-k SYMBOL_DLA_KRESKI]"
-    echo ""
-    echo "Zamienia tekst ze standardowego wejścia na kod Morse'a."
-    echo ""
-    echo "Opcje:"
-    echo "  -d SYMBOL   Użyj SYMBOLU zamiast kropki (.)"
-    echo "  -k SYMBOL   Użyj SYMBOLU zamiast kreski (-)"
-    echo "  -h          Wyświetl tę pomoc"
+if [ "$1" = "-h" ]; then
+    clear
+    echo "Użycie: ./morse.sh [kropka] [kreska]"
+    echo "Przykład: echo \"Hello 123\" | ./morse.sh \".\" \"-\""
+    echo "          echo \"SOS\" | ./morse.sh \"*\" \"_\""
     exit 0
-}
-
-# Tworzymy tablicę asocjacyjną, która przypisuje znakom ich kod Morse’a
-declare -A morse_code=(
-    [A]=".-"    [B]="-..."  [C]="-.-."  [D]="-.."   [E]="."
-    [F]="..-."  [G]="--."   [H]="...."  [I]=".."    [J]=".---"
-    [K]="-.-"   [L]=".-.."  [M]="--"    [N]="-."    [O]="---"
-    [P]=".--."  [Q]="--.-"  [R]=".-."   [S]="..."   [T]="-"
-    [U]="..-"   [V]="...-"  [W]=".--"   [X]="-..-"  [Y]="-.--"
-    [Z]="--.." 
-    [0]="-----" [1]=".----" [2]="..---" [3]="...--" [4]="....-"
-    [5]="....." [6]="-...." [7]="--..." [8]="---.." [9]="----."
-)
-
-# Obsługa opcji wiersza poleceń (np. -d, -k, -h)
-while getopts ":d:k:h" opt; do
-    case $opt in
-        d) DOT="$OPTARG" ;;       # Ustaw symbol dla kropki
-        k) DASH="$OPTARG" ;;      # Ustaw symbol dla kreski
-        h) print_help ;;          # Wyświetl pomoc
-        \?)                      # Jeśli podano nieznaną opcję
-            echo "Nieznana opcja: -$OPTARG" >&2
-            print_help
-            ;;
-    esac
-done
-
-# Usuwamy przetworzone opcje z listy argumentów
-shift $((OPTIND -1))
-
-# Jeśli dane nie są podane przez stdin (np. echo "tekst" | skrypt), to pokaż pomoc
-if [ -t 0 ]; then
-    print_help
 fi
 
-# Odczytujemy dane ze standardowego wejścia linia po linii
-while IFS= read -r line; do
-    # Iterujemy przez każdy znak w linii
-    for (( i=0; i<${#line}; i++ )); do
-        char="${line:$i:1}"                 # Wyciągamy pojedynczy znak
-        char_up=$(echo "$char" | tr 'a-z' 'A-Z')  # Zamieniamy go na wielką literę
+DOT="${1:-.}"
+DASH="${2:--}"
 
-        if [[ "$char_up" == " " ]]; then
-            # Jeśli znak to spacja, wstawiamy separator słów (np. /)
-            echo -n " / "
-        elif [[ -n "${morse_code[$char_up]}" ]]; then
-            # Jeśli znak znajduje się w tablicy Morse’a
-            code="${morse_code[$char_up]}"         # Pobieramy kod Morse’a
-            code="${code//./$DOT}"                 # Zamieniamy kropki na wybrany symbol
-            code="${code//-/$DASH}"                # Zamieniamy kreski na wybrany symbol
-            echo -n "$code "                       # Wypisujemy kod Morse’a ze spacją
-        fi
-        # Znaki spoza alfabetu/cyfry są ignorowane
+get_morse() {
+    case "$1" in
+        A) echo ".-";;
+        B) echo "-...";;
+        C) echo "-.-.";;
+        D) echo "-..";;
+        E) echo ".";;
+        F) echo "..-.";;
+        G) echo "--.";;
+        H) echo "....";;
+        I) echo "..";;
+        J) echo ".---";;
+        K) echo "-.-";;
+        L) echo ".-..";;
+        M) echo "--";;
+        N) echo "-.";;
+        O) echo "---";;
+        P) echo ".--.";;
+        Q) echo "--.-";;
+        R) echo ".-.";;
+        S) echo "...";;
+        T) echo "-";;
+        U) echo "..-";;
+        V) echo "...-";;
+        W) echo ".--";;
+        X) echo "-..-";;
+        Y) echo "-.--";;
+        Z) echo "--..";;
+        0) echo "-----";;
+        1) echo ".----";;
+        2) echo "..---";;
+        3) echo "...--";;
+        4) echo "....-";;
+        5) echo ".....";;
+        6) echo "-....";;
+        7) echo "--...";;
+        8) echo "---..";;
+        9) echo "----.";;
+        " ") echo "/";;
+        *) echo "";;
+    esac
+}
+
+while IFS= read -r line; do
+
+    line=$(echo "$line" | tr 'a-z' 'A-Z') 
+
+    for i in $(seq 1 ${#line}); do
+
+        char=$(echo  "$line" | cut -c$i)
+
+        code=$(get_morse "$char")
+
+        code=$(echo "$code" | sed "s/\./$DOT/g" | sed "s/-/$DASH/g")
+
+        printf "%s " "$code"
+
     done
-    echo # Nowa linia po każdej linii wejścia
+    echo
 done
